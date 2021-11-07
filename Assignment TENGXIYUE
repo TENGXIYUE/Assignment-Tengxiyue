@@ -1,0 +1,77 @@
+# Assignment-Tengxiyue
+######1)read my dataset(csv) from my computer######
+data<- read.csv('C:/Users/MAC/Desktop/Rstudio/food-price-index-September-2021-index-numbers-csv-tables.csv')
+head(data)
+summary(data)
+data[which(data$Data_value>3.0),]
+data[order(data$Data_value),]
+
+######2)use 4 different libraries######
+######add data######
+data$price <- rnorm(25963)
+tail(data)
+data1 <- rbind(data,rnorm(2))
+data1
+tail(data1)
+str(data1)
+quantile(data1$Data_value,na.rm = TRUE)
+table1 <- table(data1$price,data1$Data_value)
+
+#####using arrange()#####
+library(plyr)
+arrange(data,data$Data_value)
+arrange(data,desc(data$Data_value))
+tail(data)
+
+#####check for missing value#####
+sum(is.na(data1))
+any(is.na(data1))
+sum(is.na(data1$Data_value))
+colSums(is.na(data1))
+
+#####%in%----find out the numebers of the value in a certain subset#####
+table(data1$Data_value %in% c(2.35))
+table(data1$Data_value %in% c(2.35,3.21))
+table(data1$Period %in% c('2007.04'))
+table(data1$Period %in% c('2007.04','2008.10'))
+
+#####subsetting  varibles#####
+data$fine = data$Data_value %in% c('2.35','3.21')
+table(data$Data_value %in% c('2.35','3.21'))
+head(data)
+table(data$fine)
+
+#####creating binay varibles#####
+data1$binary=ifelse(data1$price<0,TRUE,FALSE)
+head(data1)
+table(data1$binary)
+table(data1$binary,data1$price<0)
+
+#####creating factor varibles#####
+data$factor <- factor(data$Data_value)
+?factor()
+head(data)
+data$factor[1:10]
+class(data$factor)
+
+#####cutting factor varibles#####
+library(Hmisc)
+data$factor2=cut2(data$Data_value,g=4)
+table(data$factor2)
+
+#####convert dataframe to JSON#####
+library(jsonlite)
+jsondata <- toJSON(data1,pretty = T)
+jsondata
+newd <- fromJSON(jsondata)
+head(newd)
+
+#####3)Use the factor function for column "Series_title_1"#####
+data$factor3 <- factor(data$Series_title_1)
+data$factor3[1:5]
+data$number <- rownames(data)
+head(data)
+library(reshape2)
+newdata <- melt(data,id=c('number','factor3','Data_value'),measure.vars = c('factor3'))
+head(newdata)
+sapply(split(newdata$Data_value,newdata$factor3),mean)
